@@ -1,6 +1,6 @@
-using FixedPointAccelerators
+using COSMOAccelerators
 using Test
 
-@testset "FixedPointAccelerators.jl" begin
-    # Write your tests here.
+@testset "COSMOAccelerators.jl" begin
+    include("proximal_operators.jl")
 end
