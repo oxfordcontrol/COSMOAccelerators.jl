@@ -16,7 +16,7 @@ end
 EmptyAccelerator(args...; kwargs...) = EmptyAccelerator{Float64}(args...; kwargs...)
 EmptyAccelerator{T}(dim::Int64) where {T <: AbstractFloat} = EmptyAccelerator{T}()
 
-function update_history!(ea::EmptyAccelerator{T}, args...; kwargs...) where {T <: AbstractFloat}
+function update!(ea::EmptyAccelerator{T}, args...; kwargs...) where {T <: AbstractFloat}
   return nothing
 end
 

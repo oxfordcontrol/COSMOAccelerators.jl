@@ -4,7 +4,7 @@ using COSMOAccelerators
     ea = EmptyAccelerator()
     @test typeof(ea) == EmptyAccelerator{Float64}
     iter = 1
-    @test update_history!(ea, zeros(2), zeros(2),iter) == nothing
+    @test update!(ea, zeros(2), zeros(2),iter) == nothing
     @test accelerate!(zeros(2), zeros(2), ea, iter) == false
     
     @test get_memory_size(ea) == 0

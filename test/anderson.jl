@@ -50,7 +50,7 @@ using COSMOAccelerators, Test, Random, LinearAlgebra, SparseArrays
 
         # add more vectors than memory, it should start appending at the beginning of the matrix caches again
         for k = 1:mem+2
-            update_history!(aa, G[:, k], X[:, k], k) 
+            update!(aa, G[:, k], X[:, k], k) 
         end 
         X_ref = X[:,7] - X[:, 6]
         F_ref = F[:,7] - F[:, 6]
@@ -79,7 +79,7 @@ using COSMOAccelerators, Test, Random, LinearAlgebra, SparseArrays
         @test aa.init_phase
 
         # add first vector pair
-        update_history!(aa, G[:, 1], X[:, 1], 1)
+        update!(aa, G[:, 1], X[:, 1], 1)
         @test !aa.init_phase 
         @test aa.iter == 0
         @test aa.x_last == X[:, 1]
@@ -88,7 +88,7 @@ using COSMOAccelerators, Test, Random, LinearAlgebra, SparseArrays
         @test iszero(aa.F) && iszero(aa.G) && iszero(aa.F) && iszero(aa.M)
         
         # add second vector
-        update_history!(aa, G[:, 2], X[:, 2], 2) 
+        update!(aa, G[:, 2], X[:, 2], 2) 
         @test aa.iter == 1
         @test aa.F[:, 1] ==  F[:, 2] - F[:, 1] 
         @test aa.X[:, 1] ==  X[:, 2] - X[:, 1] 
@@ -96,9 +96,9 @@ using COSMOAccelerators, Test, Random, LinearAlgebra, SparseArrays
 
         # add third and fourth vector pairs
         k = 3
-        update_history!(aa, G[:, k], X[:, k], 3) 
+        update!(aa, G[:, k], X[:, k], 3) 
         k += 1
-        update_history!(aa, G[:, k], X[:, k], 4) 
+        update!(aa, G[:, k], X[:, k], 4) 
         @test aa.iter == 3
         # let's check the matrices
         X_ref = [X[:,2] - X[:, 1] X[:, 3] - X[:, 2] X[:, 4] - X[:, 3] ]   
@@ -121,15 +121,15 @@ using COSMOAccelerators, Test, Random, LinearAlgebra, SparseArrays
 
         # let's add more vectors to exceed memory and check that memory gets flushed 
         k += 1
-        update_history!(aa, G[:, k], X[:, k], k) 
+        update!(aa, G[:, k], X[:, k], k) 
         k += 1 
-        update_history!(aa, G[:, k], X[:, k], k) 
+        update!(aa, G[:, k], X[:, k], k) 
         # memory should now be full
         @test aa.iter % aa.mem == 0
 
         # add one more and double check it is added in first position
         k += 1
-        update_history!(aa, G[:, k], X[:, k], k) 
+        update!(aa, G[:, k], X[:, k], k) 
  
         
         @test aa.X[:, 1] == X[:,7] - X[:, 6] 

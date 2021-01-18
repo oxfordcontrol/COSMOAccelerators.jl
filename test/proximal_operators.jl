@@ -56,7 +56,7 @@ function solve_and_accelerate(iter::ProximalAlgorithms.DRS_iterable, aa::Anderso
         k_final = k
     
         # accelerate
-        update_history!(aa, state.x, x_prev, k)
+        update!(aa, state.x, x_prev, k)
         accelerate!(state.x, x_prev, aa, k)
         @. x_prev = state.x
 

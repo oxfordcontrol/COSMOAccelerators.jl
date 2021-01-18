@@ -224,12 +224,12 @@ function empty_caches!(aa::AndersonAccelerator)
 end
 
 """
-  update_history!(aa, g, x)
+  update!(aa, g, x)
 
 - Update history of accelerator `aa` with iterates g = g(xi)
 - Computes residuals f = x - g
 """
-function update_history!(aa::AndersonAccelerator{T, BT, MT, RE}, g::AbstractVector{T}, x::AbstractVector{T}, num_iter::Int) where {T <: AbstractFloat, RE <: AbstractRegularizer, BT <: AbstractBroydenType, MT <: AbstractMemory}
+function update!(aa::AndersonAccelerator{T, BT, MT, RE}, g::AbstractVector{T}, x::AbstractVector{T}, num_iter::Int) where {T <: AbstractFloat, RE <: AbstractRegularizer, BT <: AbstractBroydenType, MT <: AbstractMemory}
   update_time_start = time()  
   if aa.activated
     # compute residual
@@ -260,7 +260,7 @@ function update_history!(aa::AndersonAccelerator{T, BT, MT, RE}, g::AbstractVect
 end
 
 # This method is a copy of the method above to test TypeII with QR decomposition
-function update_history!(aa::AndersonAccelerator{T, Type2{QRDecomp}, RestartedMemory, RE}, g::AbstractVector{T}, x::AbstractVector{T}, num_iter::Int) where {T <: AbstractFloat, RE <: AbstractRegularizer}
+function update!(aa::AndersonAccelerator{T, Type2{QRDecomp}, RestartedMemory, RE}, g::AbstractVector{T}, x::AbstractVector{T}, num_iter::Int) where {T <: AbstractFloat, RE <: AbstractRegularizer}
   if aa.activated
     update_time_start = time()  
 
