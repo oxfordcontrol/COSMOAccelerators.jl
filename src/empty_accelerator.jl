@@ -4,23 +4,23 @@ export EmptyAccelerator
 # ---------------------------
 
 """
-    EmptyAccelerator{T} <: AbstractAccelerator
+    EmptyAccelerator <: AbstractAccelerator
 
 Accelerator that does nothing.
 """
-struct EmptyAccelerator{T} <: AbstractAccelerator 
-  function EmptyAccelerator{T}() where {T <: AbstractFloat}
-      return new{T}()
+struct EmptyAccelerator <: AbstractAccelerator 
+  function EmptyAccelerator() 
+      return new()
   end
 end
-EmptyAccelerator(args...; kwargs...) = EmptyAccelerator{Float64}(args...; kwargs...)
-EmptyAccelerator{T}(dim::Int64) where {T <: AbstractFloat} = EmptyAccelerator{T}()
+EmptyAccelerator(args...; kwargs...) = EmptyAccelerator()
 
-function update!(ea::EmptyAccelerator{T}, args...; kwargs...) where {T <: AbstractFloat}
+
+function update!(ea::EmptyAccelerator, args...; kwargs...)
   return nothing
 end
 
-function accelerate!(g::AbstractVector{T}, x::AbstractVector{T}, ea::EmptyAccelerator{T}, args...; kwargs... ) where {T <: AbstractFloat}
+function accelerate!(g::AbstractVector{T}, x::AbstractVector{T}, ea::EmptyAccelerator, args...; kwargs... ) where {T <: AbstractFloat}
   return false
 end
 restart!(ea::EmptyAccelerator, args...; kwargs...) = nothing

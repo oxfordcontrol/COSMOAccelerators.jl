@@ -1,4 +1,4 @@
-export NoRegularizer, TikonovRegularizer, FrobeniusNormRegularizer, Type1, Type2, RollingMemory, RestartedMemory, AndersonAccelerator
+export NoRegularizer, TikonovRegularizer, Type1, Type2, RollingMemory, RestartedMemory, AndersonAccelerator
 export QRDecomp, NormalEquations
 
 # ---------------------------
@@ -12,7 +12,7 @@ Abstract supertype for Anderson Acceleration Type-II regularisation schemes.
 """
 abstract type AbstractRegularizer end
 struct TikonovRegularizer <: AbstractRegularizer end
-struct FrobeniusNormRegularizer <: AbstractRegularizer end
+# struct FrobeniusNormRegularizer <: AbstractRegularizer end
 struct NoRegularizer <: AbstractRegularizer end
 
 """
@@ -150,7 +150,7 @@ AndersonAccelerator{RE}(args...; kwargs...) where {RE <: AbstractRegularizer} = 
 
 # restrict certain combination of parameters
 AndersonAccelerator{T, Type2{QRDecomp}, RollingMemory, RE}(dim::Int; mem::Int = 10, min_mem::Int = 3, λ::T = T(1e-8), activated::Bool = true) where {T <: AbstractFloat, RE <: AbstractRegularizer}= throw(ArgumentError("Anderson - Type 2 with QR decomposition and RollingMemory not yet implemented."))
-AndersonAccelerator{T, Type2{QRDecomp}, RestartedMemory, RE}(dim::Int; mem::Int = 10, min_mem::Int = 3, λ::T = T(1e-8), activated::Bool = true) where {T <: AbstractFloat, RE <: Union{TikonovRegularizer, FrobeniusNormRegularizer}}= throw(ArgumentError("Anderson - Type 2 with QR decomposition and regularisation not yet implemented."))
+AndersonAccelerator{T, Type2{QRDecomp}, RestartedMemory, RE}(dim::Int; mem::Int = 10, min_mem::Int = 3, λ::T = T(1e-8), activated::Bool = true) where {T <: AbstractFloat, RE <: TikonovRegularizer} = throw(ArgumentError("Anderson - Type 2 with QR decomposition and regularisation not yet implemented."))
 
 get_type(::AndersonAccelerator{T, BT, M, RE}) where {T, RE, BT, M} = BT
 get_memory(::AndersonAccelerator{T, BT, M, RE}) where {T, RE, BT, M} = M

@@ -21,9 +21,9 @@ abstract type AbstractAccelerator end
 
 # update!(aa::AbstractAccelerator, g, x, iter) = nothing
 # accelerate!(g, x, aa::AbstractAccelerator, iter) = nothing
-# restart!(aa::AbstractAccelerator, args...; kwargs...) = nothing
-# get_memory_size(aa::AbstractAccelerator) = 0
-# is_active(aa::AbstractAccelerator) = true
 # was_successful(aa::AbstractAccelerator) = false
-# activate!(aa::AbstractAccelerator) = nothing
+restart!(aa::AbstractAccelerator, args...; kwargs...) = nothing
+# get_memory_size(aa::AbstractAccelerator) = 0
+is_active(aa::AbstractAccelerator) = true
+activate!(aa::AbstractAccelerator) = nothing
 log!(aa::AbstractAccelerator, args...; kwargs...) = false
