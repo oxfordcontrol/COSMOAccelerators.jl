@@ -15,17 +15,16 @@ The `AbstractAccelerator` interface assumes that the solver method `T` iterative
 | ------------- |:-------------| 
 | `update!(aa, g, x, iter)`      | Use iteration pairs to update the accelerator history | 
 | `accelerate!(g, x, aa, iter)`     | Recombine past iterates and overwrite `g` with the accelerated point      |  
-| `was_successful!(aa)` |  Tell the solver algorithms whether the last acceleration attempt was successful   |
+| `was_successful!(aa)` |  Tell the solver algorithms whether the last acceleration attempt was successful, e.g. no numerical issues   |
+| `restart!(aa)` |        Restart the accelerator, i.e. forget any state or history |
+
 
 | Optional methods        | Default definition | Brief description           |  
 | ------------- |:-------------| :-------------|
-| `restart!(aa)` |  do nothing      |  Restart the accelerator |
-| `activate!(aa)` |  do nothing     |  Activate the accelerator |
-| `is_active!(aa)` |  true     |  Checks if the accelerator is active |
 | `log!(aa, args...; kwargs...)` |  do nothing     |  Algorithm tells accelerator to log something |
 
 ## Accelerators
-The following accelerator types are exported:
+The following accelerator types are currently exported:
 
 - `EmptyAccelerator`: An accelerator that does nothing
 - `AndersonAccelerator{T, BT, MT, RE}(dim; mem)`: implements a variant of a limited-memory Anderson Acceleration method
