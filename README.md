@@ -38,6 +38,7 @@ The following accelerator types are currently exported:
     - `RestartedMemory`: Once the memory limit of the history is reached, the history is cleared and the method starts from scratch
   - `RE <: AbstractRegularizer`:
     - `TikonovRegularizer`: Tikonov regularisation of the least-squares subproblem to improve conditioning 
+    - `FrobeniusNormRegularizer`: Regularise the least-squares subproblem based on frobenius norms of iterate history 
     - `NoRegularizer`: No regularisation of the least-squares subproblem 
 
 ## Example
