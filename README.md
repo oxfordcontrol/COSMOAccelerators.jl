@@ -1,6 +1,5 @@
 # COSMOAccelerators.jl
 
-## Description
 `COSMOAccelerators` defines an abstract type `AbstractAccelerator`. The type can be used as an interface to write accelerator methods for algorithms based on non-expansive operators, e.g. fixed-point iterations. 
 The acceleration methods in this package were originally developed for the convex conic solver [COSMO.jl](https://github.com/oxfordcontrol/COSMO.jl), but can also be used with other fixed-point methods, e.g. algorithms based on the [ProximalOperators.jl](https://github.com/kul-forbes/ProximalOperators.jl) package (see example).
 
@@ -13,7 +12,7 @@ The `AbstractAccelerator` interface assumes that the solver method `T` iterative
 
 | Methods to implement        | Brief description           |  
 | ------------- |:-------------| 
-| `update!(aa, g, x, iter)`      | Use iteration pairs to update the accelerator history | 
+| `update!(aa, g, x, iter)`      | Use iteration pairs `(x,g)` to update the accelerator history at iteration `iter` | 
 | `accelerate!(g, x, aa, iter)`     | Recombine past iterates and overwrite `g` with the accelerated point      |  
 | `was_successful!(aa)` |  Tell the solver algorithms whether the last acceleration attempt was successful, e.g. no numerical issues   |
 | `restart!(aa)` |        Restart the accelerator, i.e. forget any state or history |
@@ -84,7 +83,7 @@ function solve(iter::ProximalAlgorithms.DRS_iterable, maxiter, gamma, tol)
     for state in iter
         state_final = state
     end
-    return state_final[2].y, state_final[2].x, state_final[1]
+    return state_final[2].y, state_final[2].z, state_final[1]
 end
 
 # Define Douglas-Rachford splitting and Anderson Acceleration
