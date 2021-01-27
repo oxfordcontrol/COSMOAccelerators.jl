@@ -1,5 +1,8 @@
 # COSMOAccelerators.jl
 
+ <a href="https://github.com/oxfordcontrol/COSMOAccelerators.jl/actions"><img src="https://github.com/oxfordcontrol/COSMOAccelerators.jl/workflows/ci/badge.svg?branch=master"></a>
+
+
 `COSMOAccelerators` defines an abstract type `AbstractAccelerator`. The type can be used as an interface to write accelerator methods for algorithms based on non-expansive operators, e.g. fixed-point iterations. 
 The acceleration methods in this package were originally developed for the convex conic solver [COSMO.jl](https://github.com/oxfordcontrol/COSMO.jl), but can also be used with other fixed-point methods, e.g. algorithms based on the [ProximalOperators.jl](https://github.com/kul-forbes/ProximalOperators.jl) package (see example).
 
