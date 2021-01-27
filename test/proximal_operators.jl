@@ -3,7 +3,6 @@ using ProximalOperators
 using ProximalAlgorithms
 using LinearAlgebra
 using Test
-
 # problem taken from 
 # https://github.com/kul-forbes/ProximalAlgorithms.jl/blob/master/test/problems/test_lasso_small.jl
 T = Float64
@@ -56,8 +55,10 @@ function solve_and_accelerate(iter::ProximalAlgorithms.DRS_iterable, aa::Anderso
         k_final = k
     
         # accelerate
-        update!(aa, state.x, x_prev, k)
-        accelerate!(state.x, x_prev, aa, k)
+        # if k > 6
+            COSMOAccelerators.update!(aa, state.x, x_prev, k)
+            COSMOAccelerators.accelerate!(state.x, x_prev, aa, k)
+        # end
         @. x_prev = state.x
 
     end
@@ -81,7 +82,7 @@ end
 
     # Douglas-Rachford + Anderson Acceleration
     iter = ProximalAlgorithms.DRS_iterable(f, g, x0, gamma)
-    aa = AndersonAccelerator(length(x0))
+    aa = AndersonAccelerator(length(x0), activate_logging = true, min_mem = 2)
     y_aa, z_aa, it_aa = solve_and_accelerate(iter, aa, maxiter, gamma, tol)
     @test norm(y_aa - x_star, Inf) <= tol
     @test it_aa < it 

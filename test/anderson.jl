@@ -12,9 +12,6 @@ using COSMOAccelerators, Test, Random, LinearAlgebra, SparseArrays
         aa = AndersonAccelerator(dim, mem = 10)
         @test typeof(aa) == AndersonAccelerator{Float64, Type2{QRDecomp}, RestartedMemory, NoRegularizer}
         
-        @test get_memory_size(aa) == 10
-        @test is_active(aa) == true
-
         aa = AndersonAccelerator{Float32}(dim)
         @test typeof(aa) == AndersonAccelerator{Float32, Type2{QRDecomp}, RestartedMemory, NoRegularizer} 
 
@@ -24,6 +21,10 @@ using COSMOAccelerators, Test, Random, LinearAlgebra, SparseArrays
         aa = AndersonAccelerator{TikonovRegularizer}(dim)
         @test typeof(aa) == AndersonAccelerator{Float64,  Type2{NormalEquations}, RestartedMemory, TikonovRegularizer} 
 
+        aa = AndersonAccelerator{FrobeniusNormRegularizer}(dim)
+        @test typeof(aa) == AndersonAccelerator{Float64,  Type2{NormalEquations}, RestartedMemory, FrobeniusNormRegularizer} 
+
+
         aa = AndersonAccelerator{RollingMemory}(dim)
         @test typeof(aa) == AndersonAccelerator{Float64,  Type2{NormalEquations}, RollingMemory, NoRegularizer} 
 
@@ -32,6 +33,7 @@ using COSMOAccelerators, Test, Random, LinearAlgebra, SparseArrays
         @test_throws ArgumentError AndersonAccelerator(dim, λ = -1.)
         @test_throws ArgumentError AndersonAccelerator{Float64, Type2{QRDecomp}, RollingMemory, NoRegularizer}(dim)
         @test_throws ArgumentError AndersonAccelerator{Float64, Type2{QRDecomp}, RestartedMemory, TikonovRegularizer}(dim)
+        @test_throws ArgumentError AndersonAccelerator{Float64, Type2{QRDecomp}, RestartedMemory, FrobeniusNormRegularizer}(dim)
     end
 
 
@@ -157,6 +159,13 @@ using COSMOAccelerators, Test, Random, LinearAlgebra, SparseArrays
         end 
         @test isapprox(norm(v2), 1., atol = 1e-8)
         return nothing
+
+
+    end
+
+    @testset "Upper-Triangular backsubstitution"
+
+
 
 
     end

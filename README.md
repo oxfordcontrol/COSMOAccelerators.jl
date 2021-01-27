@@ -1,8 +1,8 @@
 # COSMOAccelerators.jl
 
 ## Description
-`COSMOAccelerators` defines an abstract type `AbstractAccelerator` that can be used as an interface to write accelerator methods for algorithms based on non-expansive operators, e.g. fixed-point iterations. 
-The acceleration methods in this package were originally developed for the convex conic solver [COSMO.jl](https://github.com/oxfordcontrol/COSMO.jl), but can also be used with other fixed-point methods, e.g. algorithms based on the [ProximalOperators.jl](https://github.com/kul-forbes/ProximalOperators.jl) package.
+`COSMOAccelerators` defines an abstract type `AbstractAccelerator`. The type can be used as an interface to write accelerator methods for algorithms based on non-expansive operators, e.g. fixed-point iterations. 
+The acceleration methods in this package were originally developed for the convex conic solver [COSMO.jl](https://github.com/oxfordcontrol/COSMO.jl), but can also be used with other fixed-point methods, e.g. algorithms based on the [ProximalOperators.jl](https://github.com/kul-forbes/ProximalOperators.jl) package (see example).
 
 ## Installation
 
@@ -27,7 +27,7 @@ The `AbstractAccelerator` interface assumes that the solver method `T` iterative
 The following accelerator types are currently exported:
 
 - `EmptyAccelerator`: An accelerator that does nothing
-- `AndersonAccelerator{T, BT, MT, RE}(dim; mem)`: implements a variant of a limited-memory Anderson Acceleration method
+- `AndersonAccelerator{T, BT, MT, RE}(dim; mem)`: implements a variant of a limited-memory size(`mem`) Anderson Acceleration method for `x, g in R^dim`:
   - `T <: AbstractFloat`
   - `BT <: AbstractBroydenType`:
     - `Type1` for Anderson-Acceleration with a Broyden type1-update
@@ -135,7 +135,7 @@ end
 end
 
 
-
+    
 ```
 
 ## Related packages

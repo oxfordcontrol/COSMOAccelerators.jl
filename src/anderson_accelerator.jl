@@ -1,9 +1,7 @@
 export NoRegularizer, TikonovRegularizer, FrobeniusNormRegularizer, Type1, Type2, RollingMemory, RestartedMemory, AndersonAccelerator
 export QRDecomp, NormalEquations
 
-# ---------------------------
-# AndersonAccelerator
-# ---------------------------
+
 
 """
     AbstractRegularizer
@@ -118,7 +116,7 @@ mutable struct AndersonAccelerator{T, BT, MT, RE}  <: AbstractAccelerator
     
     mem, min_mem = arguments_check(mem, min_mem, dim, λ)
     
-    # for QR decomposition we don't need some of the caches
+    # for QR decomposition we don't need the caches F, X, M
     x_last = zeros(T, 0)
     F = zeros(T, 0, 0)
     X = zeros(T, 0, 0)
@@ -176,9 +174,9 @@ function log!(aa::AndersonAccelerator, iter::Int, status::Symbol)
   return nothing
 end
 
-"Put accelerator into a fresh state, i.e.."
+"Put accelerator into a fresh state, i.e. forget about past history."
 function restart!(aa::AndersonAccelerator{T, BT, MT, RE}) where {T <: AbstractFloat, RE <: AbstractRegularizer, BT <: AbstractBroydenType, MT <: AbstractMemory}
-  # For performance reasons we avoid the deletion operation, we just reset the aa.iter pointer which 
+  # For performance reasons we avoid the deletion operation here, we just reset the aa.iter pointer which 
   # tracks the number of filled columns 
   # aa.F .= 0;
   # aa.X .= 0;
@@ -186,7 +184,7 @@ function restart!(aa::AndersonAccelerator{T, BT, MT, RE}) where {T <: AbstractFl
   # aa.Q .= 0;
   # aa.R .= 0;
 
-  # aa.f .= 0; we keep it for safeguarding
+  # aa.f .= 0; we keep it if a solver needs to query f for safeguarding
   aa.f_last .= 0;
   aa.g_last .= 0;
   aa.x_last .= 0;
@@ -208,10 +206,11 @@ function empty_caches!(aa::AndersonAccelerator)
 end
 
 """
-  update!(aa, g, x)
+  update!(aa, g, x, iter)
 
 - Update history of accelerator `aa` with iterates g = g(xi)
 - Computes residuals f = x - g
+- The iteration `iter` is passed in for logging
 """
 function update!(aa::AndersonAccelerator{T, BT, MT, RE}, g::AbstractVector{T}, x::AbstractVector{T}, iter::Int) where {T <: AbstractFloat, RE <: AbstractRegularizer, BT <: AbstractBroydenType, MT <: AbstractMemory}
     # compute residual
@@ -241,7 +240,7 @@ function update!(aa::AndersonAccelerator{T, BT, MT, RE}, g::AbstractVector{T}, x
   return nothing
 end
 
-# This method is a copy of the method above to test TypeII with QR decomposition
+# This method is used for TypeII with QR decomposition
 function update!(aa::AndersonAccelerator{T, Type2{QRDecomp}, RestartedMemory, RE}, g::AbstractVector{T}, x::AbstractVector{T}, iter::Int) where {T <: AbstractFloat, RE <: AbstractRegularizer}
 
     # compute residual
@@ -256,7 +255,8 @@ function update!(aa::AndersonAccelerator{T, Type2{QRDecomp}, RestartedMemory, RE
     j = (aa.iter % aa.mem) + 1 # (aa.iter % aa.mem) number of cols filled, j is the next col where data should be entered
 
     if j == 1 && aa.iter != 0
-      apply_memory_approach!(aa, iter) # for a RestartedMemory approach we want to flush the data cache matrices and start from scratch
+      # for a RestartedMemory approach we want to flush the data cache matrices and start from scratch
+      apply_memory_approach!(aa, iter) 
     end
 
     #G[:, j] = Δg
@@ -391,7 +391,10 @@ function accelerate!(g::AbstractVector{T}, x::AbstractVector{T}, aa::AndersonAcc
   else
     # calculate the accelerated candidate point and overwrite g
     # g = g - G * eta
-    BLAS.gemv!('N', -one(T), G, eta, one(T), g)
+    # BLAS.gemv!('N', -one(T), G, eta, one(T), g)
+    mul!(g, G, eta)
+    @. g = aa.g_last - g
+
     aa.success = true
     return nothing
   end
@@ -406,30 +409,31 @@ function accelerate!(g::AbstractVector{T}, x::AbstractVector{T}, aa::AndersonAcc
      return nothing
   end
 
-  eta = uview(aa.eta, 1:l)
-  G = uview(aa.G, :, 1:l)
-  Q = uview(aa.Q, :, 1:l)
-  R = uview(aa.R, 1:l, 1:l) 
-
+  eta = view(aa.eta, 1:l)
+  G = view(aa.G, :, 1:l)
+  Q = view(aa.Q, :, 1:l)
+  R = UpperTriangular(view(aa.R, 1:l, 1:l))
   # solve least squares problem ||f_k - η Fk ||_2 where Fk = QR 
   # initialise_eta!(eta, aa, X, F)
   mul!(eta, Q', aa.f) 
 
   info = solve_linear_sys!(R, eta, aa)
-   if info < 0
+  if info < 0
     aa.activate_logging && push!(aa.acceleration_status, (iter, :fail_singular))
     return nothing
   end
   
   # TODO: maybe replace this with a check of the condition number of R
-  if norm(eta, 2) > 1e4
+  nrm_eta = norm(eta, 2)
+  if isnan(nrm_eta) || nrm_eta > 1e4
     aa.activate_logging && push!(aa.acceleration_status, (iter, :fail_eta_norm))
     return nothing
   else
     # calculate the accelerated candidate point
-    # g = g - G * eta
-    BLAS.gemv!('N', -one(T), G, eta, one(T), g)
-        
+    #  g .= g - G * eta
+    mul!(g, G, eta)
+    @. g = aa.g_last - g
+
     aa.success = true
     return nothing
   end
@@ -446,16 +450,6 @@ function initialise_eta!(eta::AbstractVector{T}, aa::AndersonAccelerator{T, Type
   mul!(eta, F', aa.f)
 end
 
-# BLAS gesv! wrapper with error handling
-# solve A X = B and for X and save result in B
-function _gesv!(A, B)
-  try
-    LinearAlgebra.LAPACK.gesv!(A, B)
-    return 1
-    catch
-      return -1
-  end
-end
 
 "Use Tikonov - Regularizer for the Least squares matrix M."
 function regularize!(M::AbstractMatrix{T}, X::AbstractMatrix{T}, F::AbstractMatrix{T}, aa::AndersonAccelerator{T, BT, ME, TikonovRegularizer}) where {T <: AbstractFloat, BT <: AbstractBroydenType, ME <: AbstractMemory}
@@ -480,16 +474,22 @@ regularize!(M::AbstractMatrix{T}, X::AbstractMatrix{T}, F::AbstractMatrix{T}, aa
 
 
 function solve_linear_sys!(M::AbstractMatrix{T}, eta::AbstractVector{T}, aa::AndersonAccelerator{T, BT, ME, RE}) where {T <: AbstractFloat, BT <: AbstractBroydenType, ME <: AbstractMemory, RE <: AbstractRegularizer}
-  info = _gesv!(M, eta)
+  # BLAS gesv! wrapper with error handling
+  # solve A X = B and for X and save result in B
+  try
+    LinearAlgebra.LAPACK.gesv!(M, eta)
+    return 1
+  catch
+      return -1
+  end
 end
 
 
 function solve_linear_sys!(R::AbstractMatrix{T}, eta::AbstractVector{T}, aa::AndersonAccelerator{T, Type2{QRDecomp}, ME, NoRegularizer}) where {T <: AbstractFloat, ME <: AbstractMemory}
   try
-    LinearAlgebra.ldiv!(R, eta)
-    # LinearAlgebra.BLAS.trsv!('U', 'N', 'N', R, eta) # seems to be equally fast, but can lead to NaN in eta without errors in openblas
-    return 1
-   catch
-     return -1
-  end
+     LinearAlgebra.ldiv!(R, eta)
+      return 1
+  catch
+      return -1
+    end
 end
