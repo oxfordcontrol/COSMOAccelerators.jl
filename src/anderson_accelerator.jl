@@ -285,7 +285,7 @@ function qr!(Q::AbstractMatrix{T}, R::AbstractMatrix{T}, Δf::AbstractVector{T},
   1 ≤ j ≤ m || throw(ArgumentError())
 
   @inbounds for k in 1:(j - 1)
-    qk = uview(Q, :, k)
+    qk = view(Q, :, k)
     ip = dot(qk, Δf)
     R[k, j] = ip
 
@@ -365,11 +365,11 @@ function accelerate!(g::AbstractVector{T}, x::AbstractVector{T}, aa::AndersonAcc
      return nothing
   end
 
-  eta = uview(aa.eta, 1:l)
-  X = uview(aa.X, :, 1:l)
-  M = uview(aa.M, 1:l, 1:l)
-  G = uview(aa.G, :, 1:l)
-  F = uview(aa.F, :, 1:l)
+  eta = view(aa.eta, 1:l)
+  X = view(aa.X, :, 1:l)
+  M = view(aa.M, 1:l, 1:l)
+  G = view(aa.G, :, 1:l)
+  F = view(aa.F, :, 1:l)
 
   # compute eta depending on method type
   # Type-1: eta = (X'F)^{-1}X'f

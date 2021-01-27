@@ -163,11 +163,6 @@ using COSMOAccelerators, Test, Random, LinearAlgebra, SparseArrays
 
     end
 
-    @testset "Upper-Triangular backsubstitution"
 
-
-
-
-    end
 
 end

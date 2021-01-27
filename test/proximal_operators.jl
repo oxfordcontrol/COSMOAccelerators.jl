@@ -82,7 +82,7 @@ end
 
     # Douglas-Rachford + Anderson Acceleration
     iter = ProximalAlgorithms.DRS_iterable(f, g, x0, gamma)
-    aa = AndersonAccelerator(length(x0), activate_logging = true, min_mem = 2)
+    aa = AndersonAccelerator(length(x0))
     y_aa, z_aa, it_aa = solve_and_accelerate(iter, aa, maxiter, gamma, tol)
     @test norm(y_aa - x_star, Inf) <= tol
     @test it_aa < it 
