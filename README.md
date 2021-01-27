@@ -142,5 +142,5 @@ end
 - [ProximalOperators.jl](https://github.com/kul-forbes/ProximalOperators.jl) - a set of operator building blocks for proximal algorithms
 
 ## Credits
-`COSMOAccelerators.jl` is developed by [Michael Garstka](www.migarstka.com) at the University of Oxford.
+`COSMOAccelerators.jl` is developed by [Michael Garstka](https://migarstka.github.io/) at the University of Oxford.
 
