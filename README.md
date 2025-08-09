@@ -1,6 +1,5 @@
 # COSMOAccelerators.jl
 
- <a href="https://github.com/oxfordcontrol/COSMOAccelerators.jl/actions"><img src="https://github.com/oxfordcontrol/COSMOAccelerators.jl/workflows/ci/badge.svg?branch=master"></a>
 
 
 `COSMOAccelerators` defines an abstract type `AbstractAccelerator`. The type can be used as an interface to write accelerator methods for algorithms based on non-expansive operators, e.g. fixed-point iterations. 
